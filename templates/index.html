@@ -6,8 +6,9 @@
   <title>{{ ui_title }}</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <base href="/">
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;600;700&family=JetBrains+Mono:wght@400&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+  <link rel="stylesheet" href="/static/styles.css">
 </head>
 <body>
   <div class="shell shell-wide">
@@ -87,7 +88,11 @@
     </section>
 
     <footer class="site-footer">
+      {% if iptables_mode == 'chain' %}
       Kaskad Web UI · <a href="https://github.com/andrey271192/kaskad_web_vpn">kaskad_web_vpn</a> · HTTP Basic Auth · DNAT в цепочке <span class="mono">KASKAD_WEB</span> (nat).
+      {% else %}
+      Kaskad Web UI · <a href="https://github.com/andrey271192/kaskad_web_vpn">kaskad_web_vpn</a> · HTTP Basic Auth · режим как у Kaskad PRO: DNAT в <span class="mono">PREROUTING</span>, метки <span class="mono">kaskad:PORT:proto</span> в INPUT/FORWARD, <span class="mono">MASQUERADE</span> на исходящем интерфейсе (<span class="mono">KASKAD_IPTABLES_MODE=compat</span>).
+      {% endif %}
     </footer>
   </div>
 
@@ -116,6 +121,6 @@
     </div>
   </div>
 
-  <script src="{{ url_for('static', filename='dashboard.js') }}" defer></script>
+  <script src="/static/dashboard.js" defer></script>
 </body>
 </html>

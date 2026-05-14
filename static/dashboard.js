@@ -143,9 +143,21 @@
   }
 
   function loadAll() {
-    return Promise.all([loadSystem(), loadServices(), loadClients()]).catch(function (e) {
-      console.warn(e);
-    });
+    return fetch("/api/meta", cred)
+      .then(function (r) {
+        return r.json();
+      })
+      .then(function (m) {
+        if (m.needs_setup) {
+          window.location.assign("/setup");
+          return Promise.reject(new Error("setup"));
+        }
+        return Promise.all([loadSystem(), loadServices(), loadClients()]);
+      })
+      .catch(function (e) {
+        if (e && e.message === "setup") return;
+        console.warn(e);
+      });
   }
 
   var overlay = document.getElementById("modal-overlay");

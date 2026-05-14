@@ -54,29 +54,31 @@ mv "$EXTRACTED"/* "$SRC"/
 echo "Сборка образа ${IMAGE} …"
 docker build -t "$IMAGE" "$SRC"
 
+FORCE_RANDOM_PASSWORD="${FORCE_RANDOM_PASSWORD:-0}"
+
 if docker ps -a --format '{{.Names}}' | grep -qx "$CONTAINER"; then
   echo "Удаление старого контейнера ${CONTAINER} …"
   docker rm -f "$CONTAINER" >/dev/null
 fi
 
+AUTH_ENV_ARGS=()
+
 if [[ -n "${ADMIN_PASSWORD:-}" ]]; then
-  BASIC_AUTH_PASSWORD="$ADMIN_PASSWORD"
+  AUTH_ENV_ARGS+=( -e "BASIC_AUTH_PASSWORD=${ADMIN_PASSWORD}" )
 elif [[ -f "$PASSWORD_FILE" ]] && grep -qs . "$PASSWORD_FILE"; then
-  BASIC_AUTH_PASSWORD="$(tr -d '\r\n' <"$PASSWORD_FILE")"
-else
+  AUTH_ENV_ARGS+=( -e "BASIC_AUTH_PASSWORD=$(tr -d '\r\n' <"$PASSWORD_FILE")" )
+elif [[ "$FORCE_RANDOM_PASSWORD" == "1" ]]; then
   if command -v openssl >/dev/null 2>&1; then
-    BASIC_AUTH_PASSWORD="$(openssl rand -hex 16)"
+    GEN_PW="$(openssl rand -hex 16)"
   else
-    BASIC_AUTH_PASSWORD="$(head -c 32 /dev/urandom | base64 | tr -dc 'A-Za-z0-9' | head -c 24)"
+    GEN_PW="$(head -c 32 /dev/urandom | base64 | tr -dc 'A-Za-z0-9' | head -c 24)"
   fi
   umask 077
-  printf '%s\n' "$BASIC_AUTH_PASSWORD" >"$PASSWORD_FILE"
-  echo "Сгенерирован пароль Basic Auth, сохранён в ${PASSWORD_FILE}"
-fi
-
-if [[ -z "$BASIC_AUTH_PASSWORD" ]]; then
-  echo "BASIC_AUTH_PASSWORD пуст — задайте ADMIN_PASSWORD или файл ${PASSWORD_FILE}" >&2
-  exit 1
+  printf '%s\n' "$GEN_PW" >"$PASSWORD_FILE"
+  AUTH_ENV_ARGS+=( -e "BASIC_AUTH_PASSWORD=${GEN_PW}" )
+  echo "Сгенерирован пароль (FORCE_RANDOM_PASSWORD=1), файл ${PASSWORD_FILE}"
+else
+  echo "Пароль веб-панели: откройте http://<хост>:${HOST_PORT}/setup при первом запуске (том ${KASKAD_DATA_DIR})."
 fi
 
 RUN_ARGS=(
@@ -89,9 +91,11 @@ RUN_ARGS=(
   -e "DOCKER_WEB_CONTAINER=${CONTAINER}"
   -e "DOCKER_WEB_DISPLAY_UNIT=kaskad-web.service"
   -e "BASIC_AUTH_USER=${BASIC_AUTH_USER}"
-  -e "BASIC_AUTH_PASSWORD=${BASIC_AUTH_PASSWORD}"
   -e "BASIC_AUTH_REALM=${BASIC_AUTH_REALM}"
+  -e "KASKAD_IPTABLES_MODE=${KASKAD_IPTABLES_MODE:-compat}"
 )
+
+RUN_ARGS+=("${AUTH_ENV_ARGS[@]}")
 
 if [[ "${MOUNT_DOCKER_SOCK:-1}" == "1" ]] && [[ -S /var/run/docker.sock ]]; then
   RUN_ARGS+=( -v /var/run/docker.sock:/var/run/docker.sock )
@@ -114,6 +118,10 @@ docker run "${RUN_ARGS[@]}" "$IMAGE"
 echo "Готово."
 echo "  URL:    http://$(hostname -f 2>/dev/null || hostname):${HOST_PORT}/"
 echo "  Логин: ${BASIC_AUTH_USER}"
-echo "  Пароль: см. ${PASSWORD_FILE} (или переменная ADMIN_PASSWORD при установке)"
-echo "  Правила NAT: цепочка nat/KASKAD_WEB, данные: ${KASKAD_DATA_DIR}"
-echo "  Рекомендуется: sysctl net.ipv4.ip_forward=1 и корректный FORWARD в filter."
+if [[ "${#AUTH_ENV_ARGS[@]}" -gt 0 ]]; then
+  echo "  Пароль: из ADMIN_PASSWORD / ${PASSWORD_FILE} / автогенерация (см. выше)."
+else
+  echo "  Пароль: создайте на странице /setup при первом открытии."
+fi
+echo "  NAT: режим ${KASKAD_IPTABLES_MODE:-compat} (compat ≈ Kaskad PRO), данные: ${KASKAD_DATA_DIR}"
+echo "  Рекомендуется: sysctl net.ipv4.ip_forward=1."

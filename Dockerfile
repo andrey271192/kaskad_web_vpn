@@ -33,7 +33,7 @@ RUN set -eux; \
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-COPY app.py kaskad_store.py system_info.py /app/
+COPY app.py auth_store.py kaskad_store.py system_info.py /app/
 COPY templates ./templates
 COPY static ./static
 
