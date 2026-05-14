@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Однострочная установка (пример в README): клон/скачивание с GitHub, сборка образа, запуск контейнера.
+# Однострочная установка: GitHub → сборка образа → контейнер с NAT на хосте (privileged + host network).
 set -euo pipefail
 
 REPO="${KASKAD_REPO:-andrey271192/kaskad_web_vpn}"
@@ -12,6 +12,9 @@ BASIC_AUTH_USER="${BASIC_AUTH_USER:-user1}"
 BASIC_AUTH_REALM="${BASIC_AUTH_REALM:-kaskad}"
 PASSWORD_FILE="${PASSWORD_FILE:-/root/kaskad_web.initial-password}"
 PANEL_URL="${PANEL_URL:-}"
+KASKAD_DATA_DIR="${KASKAD_DATA_DIR:-/var/lib/kaskad}"
+KASKAD_HOST_NETWORK="${KASKAD_HOST_NETWORK:-1}"
+MOUNT_DOCKER_SOCK="${MOUNT_DOCKER_SOCK:-1}"
 
 need_cmd() {
   command -v "$1" >/dev/null 2>&1 || {
@@ -26,6 +29,8 @@ if ! docker info >/dev/null 2>&1; then
   echo "Docker недоступен (запустите сервис или добавьте пользователя в группу docker)." >&2
   exit 1
 fi
+
+mkdir -p "$KASKAD_DATA_DIR"
 
 SRC="${INSTALL_ROOT}/kaskad_web_vpn_src"
 mkdir -p "$(dirname "$SRC")"
@@ -78,14 +83,30 @@ RUN_ARGS=(
   -d
   --name "$CONTAINER"
   --restart unless-stopped
-  -p "${HOST_PORT}:8088"
+  --privileged
+  -v "${KASKAD_DATA_DIR}:/var/lib/kaskad"
+  -e "KASKAD_RULES_PATH=/var/lib/kaskad/rules.json"
+  -e "DOCKER_WEB_CONTAINER=${CONTAINER}"
+  -e "DOCKER_WEB_DISPLAY_UNIT=kaskad-web.service"
   -e "BASIC_AUTH_USER=${BASIC_AUTH_USER}"
   -e "BASIC_AUTH_PASSWORD=${BASIC_AUTH_PASSWORD}"
   -e "BASIC_AUTH_REALM=${BASIC_AUTH_REALM}"
 )
 
+if [[ "${MOUNT_DOCKER_SOCK:-1}" == "1" ]] && [[ -S /var/run/docker.sock ]]; then
+  RUN_ARGS+=( -v /var/run/docker.sock:/var/run/docker.sock )
+fi
+
 if [[ -n "$PANEL_URL" ]]; then
-  RUN_ARGS+=(-e "PANEL_URL=${PANEL_URL}")
+  RUN_ARGS+=( -e "PANEL_URL=${PANEL_URL}" )
+fi
+
+if [[ "$KASKAD_HOST_NETWORK" == "1" ]]; then
+  RUN_ARGS+=( --network host )
+  RUN_ARGS+=( -e "PORT=${HOST_PORT}" )
+else
+  RUN_ARGS+=( -p "${HOST_PORT}:8088" )
+  RUN_ARGS+=( -e "PORT=8088" )
 fi
 
 docker run "${RUN_ARGS[@]}" "$IMAGE"
@@ -94,3 +115,5 @@ echo "Готово."
 echo "  URL:    http://$(hostname -f 2>/dev/null || hostname):${HOST_PORT}/"
 echo "  Логин: ${BASIC_AUTH_USER}"
 echo "  Пароль: см. ${PASSWORD_FILE} (или переменная ADMIN_PASSWORD при установке)"
+echo "  Правила NAT: цепочка nat/KASKAD_WEB, данные: ${KASKAD_DATA_DIR}"
+echo "  Рекомендуется: sysctl net.ipv4.ip_forward=1 и корректный FORWARD в filter."

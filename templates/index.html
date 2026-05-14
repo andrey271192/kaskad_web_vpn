@@ -3,14 +3,19 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Каскад AmneziaWG — памятка</title>
+  <title>{{ ui_title }}</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;600;700&family=JetBrains+Mono:wght@400&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
 </head>
 <body>
-  <div class="shell">
+  <div class="shell shell-wide">
+    <div class="top-bar">
+      <h1 class="product-title">{{ ui_title }}</h1>
+      <button type="button" class="btn btn-ghost" id="btn-refresh" title="Обновить данные">Обновить</button>
+    </div>
+
     <header class="site-header">
       <div class="support-line">
         <span class="support-title">Поддержка автора</span>
@@ -23,122 +28,94 @@
         <span class="sep">·</span>
         <a href="https://t.me/lot_andrey" target="_blank" rel="noopener noreferrer">Telegram @lot_andrey</a>
       </div>
-      <p class="support-blurb">Звезда репозиторию и донат помогают развивать утилиты. На этой странице нет сторонней рекламы.</p>
+      {% if panel_url %}
+      <p class="support-blurb">Панель Amnezia / доп.: <a href="{{ panel_url }}">{{ panel_url }}</a></p>
+      {% else %}
+      <p class="support-blurb">Открытый исходный код, без сторонней рекламы на странице.</p>
+      {% endif %}
     </header>
 
-    <p class="eyebrow">VPN · каскад</p>
-    <h1>Каскад для AmneziaWG</h1>
-    <p class="lead">
-      Краткая памятка: клиент подключается сначала к вашему <strong>промежуточному узлу</strong> (Endpoint),
-      а ключ и peer создаются на основном сервере AmneziaWG. Эта страница только объясняет шаги и может собрать текст-памятку;
-      генерация <span class="inline-code">.conf</span> выполняется в вашей <strong>админ-панели</strong> или вручную.
-    </p>
+    <section class="card" id="sec-system">
+      <h2 class="card-title">Система</h2>
+      <div class="sys-grid" id="system-grid"></div>
+    </section>
 
-    {% if panel_url %}
-    <p class="muted">Ваша панель: <a href="{{ panel_url }}">{{ panel_url }}</a></p>
-    {% endif %}
+    <section class="card" id="sec-services">
+      <h2 class="card-title">Сервисы</h2>
+      <div class="table-wrap">
+        <table class="data-table" id="tbl-services">
+          <thead>
+            <tr><th>UNIT</th><th>ACTIVE</th><th>ENABLED</th></tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </section>
 
-    <details class="panel-fold" open>
-      <summary>
+    <section class="card" id="sec-clients">
+      <div class="card-head">
+        <h2 class="card-title">Клиенты (правила NAT)</h2>
+        <button type="button" class="btn" id="btn-add-client">+ Добавить клиента</button>
+      </div>
+      <div class="table-wrap table-scroll">
+        <table class="data-table" id="tbl-clients">
+          <thead>
+            <tr>
+              <th>USER</th><th>PROTO</th><th>IN</th><th></th><th>TARGET</th><th>OUT</th>
+              <th>ЗАМЕТКА</th><th>ГДЕ</th><th></th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </section>
+
+    <details class="panel-fold card-inner" id="fold-iptables">
+      <summary class="fold-sum">
         <span class="fold-arrow" aria-hidden="true"></span>
-        <span class="fold-h">Что такое каскад</span>
+        <span class="fold-h">Сырые iptables правила (kaskad)</span>
       </summary>
       <div class="fold-body">
-        <p class="muted">
-          В конфиге клиента поле <span class="inline-code">Endpoint</span> указывает на IP или DNS узла «перед» VPS
-          (домашний роутер с пробросом UDP, другой VPS и т.д.). На этом узле нужен проброс порта на ваш основной сервер WireGuard/AWG.
-          Сервер AmneziaWG добавляет peer и выдаёт готовый <span class="inline-code">.conf</span>.
-        </p>
+        <button type="button" class="btn btn-sm" id="btn-load-iptables">Показать</button>
+        <pre class="mono-block" id="iptables-out"></pre>
       </div>
     </details>
 
-    <details class="panel-fold" open>
-      <summary>
-        <span class="fold-arrow" aria-hidden="true"></span>
-        <span class="fold-h">Через панель Amnezia Admin</span>
-      </summary>
-      <div class="fold-body">
-        <p class="muted">
-          Если установлена <strong>Amnezia Admin WebUI</strong>, откройте блок <strong>«Новый клиент под каскад»</strong>:
-          укажите Endpoint (ваш публичный IP/DNS узла и при необходимости порт), затем скачайте <span class="inline-code">.conf</span>.
-        </p>
-        <p class="muted">
-          Репозиторий панели:
-          <a href="https://github.com/andrey271192/Amnezia_web" target="_blank" rel="noopener noreferrer">github.com/andrey271192/Amnezia_web</a>
-        </p>
-      </div>
-    </details>
-
-    <details class="panel-fold">
-      <summary>
-        <span class="fold-arrow" aria-hidden="true"></span>
-        <span class="fold-h">Собрать памятку (локально в браузере)</span>
-      </summary>
-      <div class="fold-body">
-        <p class="muted">Данные не отправляются на сервер — только текст для копирования.</p>
-        <div class="grid-form">
-          <label for="ep-host">Endpoint (хост для клиента)</label>
-          <input id="ep-host" type="text" placeholder="203.0.113.50 или ddns.example.com" autocomplete="off">
-
-          <label for="ep-port">Порт Endpoint (если пусто — как у сервера)</label>
-          <input id="ep-port" type="number" min="1" max="65535" placeholder="51820" autocomplete="off">
-
-          <label for="memo-name">Имя клиента (произвольно)</label>
-          <input id="memo-name" type="text" placeholder="Телефон через узел X" autocomplete="off">
-
-          <div class="btn-row">
-            <button type="button" class="btn" id="btn-build">Собрать текст</button>
-            <button type="button" class="btn" id="btn-copy">Копировать</button>
-          </div>
-        </div>
-        <pre class="out-box" id="out-memo" aria-live="polite"></pre>
-      </div>
-    </details>
-
-    <details class="panel-fold">
-      <summary>
-        <span class="fold-arrow" aria-hidden="true"></span>
-        <span class="fold-h">Проброс UDP</span>
-      </summary>
-      <div class="fold-body">
-        <p class="muted">
-          На промежуточном узле пробросьте UDP с выбранного порта на IP VPS и порт, где слушает ваш инстанс AmneziaWG.
-          Убедитесь, что фаервол не режет входящий UDP.
-        </p>
-      </div>
-    </details>
+    <section class="card">
+      <h2 class="card-title">Мониторы</h2>
+      <p class="muted pad-v">— нет ни одного —</p>
+    </section>
 
     <footer class="site-footer">
-      Сервис: HTTP Basic Auth (realm «kaskad»). Установка одной ссылкой — см. README репозитория kaskad_web_vpn.
+      Kaskad Web UI · <a href="https://github.com/andrey271192/kaskad_web_vpn">kaskad_web_vpn</a> · HTTP Basic Auth · DNAT в цепочке <span class="mono">KASKAD_WEB</span> (nat).
     </footer>
   </div>
-  <script>
-(function () {
-  function buildText() {
-    var host = (document.getElementById("ep-host").value || "").trim();
-    var port = (document.getElementById("ep-port").value || "").trim();
-    var name = (document.getElementById("memo-name").value || "").trim() || "клиент";
-    var epLine = host ? (host + (port ? ":" + port : "")) : "(укажите Endpoint)";
-    return (
-      "Памятка по каскаду\n" +
-      "— Имя: " + name + "\n" +
-      "— Endpoint для клиента: " + epLine + "\n" +
-      "— На промежуточном узле: проброс UDP на VPS и порт WG/AWG.\n" +
-      "— На основном сервере: создать peer (панель Amnezia Admin → «Новый клиент под каскад») и выдать .conf.\n"
-    );
-  }
-  document.getElementById("btn-build").addEventListener("click", function () {
-    document.getElementById("out-memo").textContent = buildText();
-  });
-  document.getElementById("btn-copy").addEventListener("click", async function () {
-    var t = document.getElementById("out-memo").textContent || buildText();
-    try {
-      await navigator.clipboard.writeText(t);
-    } catch (e) {
-      alert("Не удалось скопировать — выделите текст вручную.");
-    }
-  });
-})();
-  </script>
+
+  <div class="modal-overlay" id="modal-overlay" hidden>
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+      <h3 id="modal-title">Клиент</h3>
+      <form id="form-client" class="form-grid">
+        <input type="hidden" name="id" id="f-id">
+        <label>USER <input name="user" id="f-user" required maxlength="64" autocomplete="off"></label>
+        <label>PROTO
+          <select name="proto" id="f-proto">
+            <option value="udp">udp</option>
+            <option value="tcp">tcp</option>
+          </select>
+        </label>
+        <label>IN (порт) <input name="in_port" id="f-in" type="number" required min="1" max="65535"></label>
+        <label>TARGET (IPv4) <input name="target" id="f-target" required autocomplete="off" placeholder="10.0.0.5"></label>
+        <label>OUT (порт) <input name="out_port" id="f-out" type="number" required min="1" max="65535"></label>
+        <label class="span-2">ЗАМЕТКА <input name="note" id="f-note" maxlength="256" autocomplete="off"></label>
+        <label class="span-2">ГДЕ <input name="where" id="f-where" maxlength="256" autocomplete="off" placeholder="Netherlands · узел …"></label>
+        <div class="modal-actions span-2">
+          <button type="submit" class="btn">Сохранить</button>
+          <button type="button" class="btn btn-ghost" id="modal-cancel">Отмена</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script src="{{ url_for('static', filename='dashboard.js') }}" defer></script>
 </body>
 </html>
