@@ -17,6 +17,23 @@
 - Linux с Docker (для NAT — предпочтительно host network + privileged).
 - Доступ к **`docker.sock`** на хосте (по умолчанию монтируется), чтобы в таблице «Сервисы» третья строка могла показывать статус **самого контейнера** как `kaskad-web.service`.
 
+## Сборка образа: «invalid signature» / apt не подписан
+
+Чаще всего: **битый кэш Docker BuildKit**, **прокси по HTTP**, **место на диске**, **сбитые часы** на хосте.
+
+На хосте:
+
+```bash
+date -u                    # время должно быть разумным
+df -h /var/lib/docker      # есть ли свободное место
+docker builder prune -af   # сбросить кэш сборки
+docker build --pull --no-cache -t kaskad-web-vpn:test .
+```
+
+Если ошибка остаётся: временно отключите HTTP-прокси для сборки (`unset http_proxy https_proxy NO_PROXY`) или собирайте на другой сети.
+
+В образе списки APT по умолчанию переводятся на **HTTPS** (`deb.debian.org`, `security.debian.org`), чтобы обходить «порченые» HTTP-кэши.
+
 ## Установка одной командой
 
 Порт **8088**, логин **user1**, пароль в **`/root/kaskad_web.initial-password`** (или задайте **`ADMIN_PASSWORD`**):
