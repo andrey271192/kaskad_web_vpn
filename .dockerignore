@@ -1,0 +1,6 @@
+.git
+*.md
+install.sh
+uninstall.sh
+.python-version
+__pycache__
