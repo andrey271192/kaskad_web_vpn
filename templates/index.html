@@ -91,7 +91,7 @@
       {% if iptables_mode == 'chain' %}
       Kaskad Web UI · <a href="https://github.com/andrey271192/kaskad_web_vpn">kaskad_web_vpn</a> · HTTP Basic Auth · DNAT в цепочке <span class="mono">KASKAD_WEB</span> (nat).
       {% else %}
-      Kaskad Web UI · <a href="https://github.com/andrey271192/kaskad_web_vpn">kaskad_web_vpn</a> · HTTP Basic Auth · режим как у Kaskad PRO: DNAT в <span class="mono">PREROUTING</span>, метки <span class="mono">kaskad:PORT:proto</span> в INPUT/FORWARD, <span class="mono">MASQUERADE</span> на исходящем интерфейсе (<span class="mono">KASKAD_IPTABLES_MODE=compat</span>).
+      Kaskad Web UI · <a href="https://github.com/andrey271192/kaskad_web_vpn">kaskad_web_vpn</a> · HTTP Basic Auth · каскад: DNAT в <span class="mono">PREROUTING</span>, метки <span class="mono">kaskad:PORT:proto</span> в INPUT/FORWARD, <span class="mono">MASQUERADE</span> (<span class="mono">KASKAD_IPTABLES_MODE=compat</span>).
       {% endif %}
     </footer>
   </div>

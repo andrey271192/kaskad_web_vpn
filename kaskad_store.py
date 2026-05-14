@@ -1,8 +1,8 @@
 """Хранение правил NAT и синхронизация с iptables.
 
 Режимы (KASKAD_IPTABLES_MODE):
-- compat — как Kaskad PRO: DNAT в PREROUTING, INPUT/FORWARD с комментарием kaskad:PORT:proto, MASQUERADE.
-- chain  — отдельная цепочка nat/KASKAD_WEB (старый вариант).
+- compat — DNAT в PREROUTING, INPUT/FORWARD с комментарием kaskad:PORT:proto, MASQUERADE.
+- chain  — отдельная цепочка nat/KASKAD_WEB (альтернатива).
 """
 from __future__ import annotations
 
@@ -184,7 +184,7 @@ def _flush_matching_rules(table: str | None, chain: str, predicate) -> None:
 
 
 def compat_remove_rule(proto: str, in_port: int) -> None:
-    """Убирает DNAT + INPUT/FORWARD как в Kaskad PRO."""
+    """Удаляет связанные DNAT и правила filter по порту/протоколу."""
     cm = _kaskad_comment(in_port, proto)
 
     def pred_nat(rest: str) -> bool:

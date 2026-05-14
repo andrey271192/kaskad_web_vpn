@@ -35,9 +35,7 @@
       ["Load", data.load],
       ["Mem", data.mem],
       ["IPADDR / IPv4", String(data.ipaddrs || "").replace(/\n/g, "<br>")],
-      ["yaskad", data.yaskad_version],
-      ["BOT_TOKEN", data.bot_token_masked],
-      ["BOT_CHAT_ID", data.bot_chat_masked],
+      ["Версия UI", data.ui_version],
     ];
     g.innerHTML = cells
       .map(function (kv) {

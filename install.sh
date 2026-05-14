@@ -123,5 +123,5 @@ if [[ "${#AUTH_ENV_ARGS[@]}" -gt 0 ]]; then
 else
   echo "  Пароль: создайте на странице /setup при первом открытии."
 fi
-echo "  NAT: режим ${KASKAD_IPTABLES_MODE:-compat} (compat ≈ Kaskad PRO), данные: ${KASKAD_DATA_DIR}"
+echo "  NAT: режим ${KASKAD_IPTABLES_MODE:-compat}, данные: ${KASKAD_DATA_DIR}"
 echo "  Рекомендуется: sysctl net.ipv4.ip_forward=1."

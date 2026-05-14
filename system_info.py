@@ -89,12 +89,17 @@ def _ipv4_addrs() -> str:
     return "\n".join(lines) if lines else "—"
 
 
-def mask_secret(val: str, keep_start: int = 4, keep_end: int = 2) -> str:
-    if not val:
-        return "—"
-    if len(val) <= keep_start + keep_end:
-        return "***"
-    return val[:keep_start] + "…" + val[-keep_end:]
+def collect_system_payload() -> dict:
+    ui_ver = os.environ.get("KASKAD_UI_VERSION", "v2.2").strip()
+
+    return {
+        "machine_id": _read_machine_id(),
+        "uptime": _uptime_h(),
+        "load": _load_avg(),
+        "mem": _mem_mb(),
+        "ipaddrs": _ipv4_addrs(),
+        "ui_version": ui_ver,
+    }
 
 
 def systemd_unit_row(unit: str) -> dict[str, str]:
@@ -156,27 +161,10 @@ def docker_container_row(name: str, display_unit: str | None = None) -> dict[str
     return row
 
 
-def collect_system_payload() -> dict:
-    ui_ver = os.environ.get("KASKAD_UI_VERSION", "v2.2").strip()
-    bot_token = os.environ.get("BOT_TOKEN", "")
-    bot_chat = os.environ.get("BOT_CHAT_ID", "")
-
-    return {
-        "machine_id": _read_machine_id(),
-        "uptime": _uptime_h(),
-        "load": _load_avg(),
-        "mem": _mem_mb(),
-        "ipaddrs": _ipv4_addrs(),
-        "yaskad_version": ui_ver,
-        "bot_token_masked": mask_secret(bot_token),
-        "bot_chat_masked": mask_secret(bot_chat, 2, 2),
-    }
-
-
 def collect_services_rows() -> list[dict[str, str]]:
     units_csv = os.environ.get(
         "SERVICE_UNITS",
-        "kaskad_bot.service,kaskad-monitor.service,kaskad-web.service",
+        "dbus.service,systemd-networkd.service,kaskad-web.service",
     )
     units = [u.strip() for u in units_csv.split(",") if u.strip()]
     docker_web = os.environ.get("DOCKER_WEB_CONTAINER", "").strip()
