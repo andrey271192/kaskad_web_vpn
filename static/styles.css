@@ -288,9 +288,9 @@ a {
   position: sticky;
   top: 0;
   z-index: 100;
-  border-bottom: 1px solid rgba(125, 211, 252, 0.22);
-  background: rgba(7, 11, 16, 0.94);
-  backdrop-filter: blur(8px);
+  border-bottom: 1px solid rgba(180, 83, 9, 0.35);
+  background: linear-gradient(90deg, rgba(254, 243, 199, 0.97), rgba(255, 237, 213, 0.99));
+  backdrop-filter: blur(6px);
 }
 
 .proj-support-inner {
@@ -301,20 +301,26 @@ a {
   align-items: center;
   justify-content: center;
   gap: 0.35rem 0.65rem;
-  padding: 0.4rem clamp(1rem, 3vw, 1.25rem);
-  font-size: 0.82rem;
-  color: var(--muted);
+  padding: 0.45rem clamp(1rem, 3vw, 1.5rem);
+  font-size: 0.84rem;
+  color: #78350f;
 }
 
 .proj-support-inner a {
-  color: var(--accent);
+  color: #9a3412;
   font-weight: 650;
   white-space: nowrap;
+  text-decoration: none;
+}
+
+.proj-support-inner a:hover {
+  text-decoration: underline;
 }
 
 .proj-support-lead {
   margin-right: 0.25rem;
-  opacity: 0.95;
+  font-weight: 600;
+  opacity: 0.85;
 }
 
 .proj-support-dot {
