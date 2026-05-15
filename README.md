@@ -1,20 +1,5 @@
 # kaskad_web_vpn — каскад NAT под ключ
 
-> Где поддержать: [Boosty (донат)](https://boosty.to/andrey27/donate) · [Ozon СБП](https://finance.ozon.ru/apps/sbp/ozonbankpay/019dc200-2a5d-7931-a619-782d285f6798) · [Telegram @lot_andrey](https://t.me/lot_andrey) · [**GitHub** ↗](https://github.com/andrey271192/kaskad_web_vpn)
-
-## Поддержка проекта
-
----
-
-- ⭐ **GitHub:** [andrey271192/kaskad_web_vpn](https://github.com/andrey271192/kaskad_web_vpn)
-- 💖 **Boosty:** [boosty.to/andrey27/donate](https://boosty.to/andrey27/donate)
-- 💳 **Ozon Bank (СБП):** [ссылка](https://finance.ozon.ru/apps/sbp/ozonbankpay/019dc200-2a5d-7931-a619-782d285f6798)
-- ✉️ **Telegram:** [@lot_andrey](https://t.me/lot_andrey)
-
-Веб-панель на **Flask** с **HTTP Basic Auth**: **каскад** (DNAT UDP/TCP с российского VPS на зарубежный узел AmneziaWG / WireGuard / TCP), блок **Система**, **Сервисы**, таблица правил и вывод **iptables**. Установка одной командой с **вашего** репозитория GitHub.
-
-Репозиторий: [github.com/andrey271192/kaskad_web_vpn](https://github.com/andrey271192/kaskad_web_vpn)
-
 ## Скриншот интерфейса
 
 Ниже — **иллюстрация** общего вида панели (правила проброса, система, iptables); для маркетинга лучше подставить **живой** скрин с вашего сервера тем же именем файла:
@@ -119,3 +104,14 @@ sudo -E env PATH="$PATH" flask --app app run --host 0.0.0.0 --port 8088
 ## Лицензия
 
 MIT
+
+---
+
+## Поддержка проекта
+
+---
+
+- ⭐ **GitHub:** [andrey271192/kaskad_web_vpn](https://github.com/andrey271192/kaskad_web_vpn)
+- 💖 **Boosty:** [boosty.to/andrey27/donate](https://boosty.to/andrey27/donate)
+- 💳 **Ozon Bank (СБП):** [ссылка](https://finance.ozon.ru/apps/sbp/ozonbankpay/019dc200-2a5d-7931-a619-782d285f6798)
+- ✉️ **Telegram:** [@lot_andrey](https://t.me/lot_andrey)
