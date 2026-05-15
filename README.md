@@ -4,6 +4,16 @@
 
 Репозиторий: [github.com/andrey271192/kaskad_web_vpn](https://github.com/andrey271192/kaskad_web_vpn)
 
+## Скриншот интерфейса
+
+В браузере: правила проброса, блоки «Система» / «Сервисы», сырой вывод iptables (пример оформления):
+
+<p align="center">
+<img src="docs/screenshots/kaskad-panel-overview.png" alt="Веб-панель kaskad: таблица правил NAT и фрагмент iptables" width="760"/>
+</p>
+
+При желании замените файл **`docs/screenshots/kaskad-panel-overview.png`** на скрин с вашего сервера.
+
 ## Установка под ключ
 
 На VPS под root:
