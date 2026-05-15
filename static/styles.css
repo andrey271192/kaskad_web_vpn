@@ -284,6 +284,48 @@ a {
   margin-top: 0.35rem;
 }
 
+.proj-support-strip {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  border-bottom: 1px solid rgba(125, 211, 252, 0.22);
+  background: rgba(7, 11, 16, 0.94);
+  backdrop-filter: blur(8px);
+}
+
+.proj-support-inner {
+  max-width: min(1180px, 100%);
+  margin: 0 auto;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem 0.65rem;
+  padding: 0.4rem clamp(1rem, 3vw, 1.25rem);
+  font-size: 0.82rem;
+  color: var(--muted);
+}
+
+.proj-support-inner a {
+  color: var(--accent);
+  font-weight: 650;
+  white-space: nowrap;
+}
+
+.proj-support-lead {
+  margin-right: 0.25rem;
+  opacity: 0.95;
+}
+
+.proj-support-dot {
+  opacity: 0.4;
+  user-select: none;
+}
+
+.kaskad-support-top + .shell {
+  padding-top: 0.75rem;
+}
+
 .site-header {
   border: 1px solid var(--line);
   border-radius: 14px;
