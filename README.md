@@ -1,13 +1,14 @@
 # kaskad_web_vpn — каскад NAT под ключ
 
-## Скриншот интерфейса
+Веб-панель для **проброса портов и iptables** на VPS: добавляешь правило в таблице — скрипт сам собирает DNAT/MASQUERADE. Удобно, если уже пользуешься [kaskad](https://github.com/andrey271192/kaskad) и не хочешь каждый раз править `iptables` руками.
 
-Ниже — **иллюстрация** общего вида панели (правила проброса, система, iptables);
+## Как выглядит
+
 <p align="center">
-<img src="docs/screenshots/kaskad-panel-overview.png" alt="Веб-панель kaskad: таблица правил NAT и фрагмент iptables" width="760"/>
+<img src="docs/screenshots/kaskad-panel-overview.png" alt="Таблица правил NAT и фрагмент iptables" width="760"/>
 </p>
 
-При желании замените файл **`docs/screenshots/kaskad-panel-overview.png`** на скрин с вашего сервера.
+Свой скрин можно положить в **`docs/screenshots/kaskad-panel-overview.png`** — в README подтянется автоматически.
 
 ## Установка под ключ
 
